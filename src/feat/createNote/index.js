@@ -11,8 +11,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Alert
 } from 'react-native';
 import {API, graphqlOperation, Storage} from 'aws-amplify';
+import ImageS3 from '../../components/s3_image';
 
 const initialState = {title: '', content: '', imageKey: ''};
 
@@ -48,6 +50,10 @@ const CreateNoteScreen = ({navigation}) => {
   async function addNote() {
     try {
       const note = {...formState};
+      if(note.title === '' || note.content === ''){
+        alertRequiredNameContent();
+        return;
+      }
       note.imageKey = imageKeyUUID;
       await pathToImageFile();
       await API.graphql(graphqlOperation(createNote, {input: note}));
@@ -62,12 +68,23 @@ const CreateNoteScreen = ({navigation}) => {
       console.log('error creating note:', err);
     }
   }
+
+  const alertRequiredNameContent = () =>
+  Alert.alert(
+    "Required",
+    "Title and Content are both required fields",
+    [
+      
+      { text: "OK", onPress: () => console.log("OK Pressed") }
+    ]
+  );
+
   async function pathToImageFile() {
     try {
       const response = await fetch(filePath.uri);
       const blob = await response.blob();
       await Storage.put(imageKeyUUID, blob, {
-        contentType: 'image/jpeg', // contentType is optional
+        contentType: 'image/jpeg',
       });
     } catch (err) {
       console.log('Error uploading file:', err);
@@ -87,49 +104,72 @@ const CreateNoteScreen = ({navigation}) => {
       />
       <TextInput
         onChangeText={val => setInput('content', val)}
-        style={styles.input}
+        style={styles.content}
         value={formState.content}
         placeholder="Content"
+        multiline={true}
       />
-      {/* <S3Image style={{width:300, height:300}} level="private" imgKey={imageKeyUUID} picker /> */}
-      <View
-        style={{
-          container: {
-            flex: 1,
-            padding: 10,
-            backgroundColor: '#fff',
-          },
-        }}>
-        {filePath.uri ? (
-          <>
-            <Image source={{uri: filePath.uri}} style={styles.imageStyle} />
-            {/* <Text style={styles.textStyle}>{filePath.uri}</Text> */}
-          </>
-        ) : null}
 
-        <TouchableOpacity
-          activeOpacity={0.5}
-          style={styles.buttonStyle}
-          onPress={chooseFile}>
-          <Text style={styles.textStyleWhite}>Choose Image</Text>
-        </TouchableOpacity>
-      </View>
+      <ImageS3 uri={filePath.uri}/>
 
-      <Button title="Create Note" onPress={addNote} />
+
+      <View style={{height: 20}} />
+      <TouchableOpacity
+        activeOpacity={0.5}
+        style={styles.buttonStyle}
+        onPress={chooseFile}>
+        <Text style={styles.appButtonText}>Choose Image</Text>
+      </TouchableOpacity>
+
+      <View style={{height: 10}} />
+      <TouchableOpacity
+        activeOpacity={0.5}
+        style={styles.buttonStyle}
+        onPress={addNote}>
+        <Text style={styles.appButtonText}>Create Note</Text>
+      </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {justifyContent: 'center', padding: 20, alignContent: 'center'},
+  container: {
+    justifyContent: 'flex-start',
+    padding: 20,
+    alignContent: 'flex-start',
+  },
   todo: {marginBottom: 15},
-  input: {height: 50, backgroundColor: '#ddd', marginBottom: 10, padding: 8},
+  input: {height: 50, backgroundColor: '#ddd', marginBottom: 10, padding: 16,borderRadius:10},
   todoName: {fontSize: 18},
   imageStyle: {
-    width: 400,
-    height: 400,
+    width: 350,
+    height: 150,
     resizeMode: 'contain',
-    margin: 5,
+    paddingLeft: 0,
+    borderRadius: 10,
+  },
+  buttonStyle: {
+    elevation: 8,
+    backgroundColor: '#009688',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+  },
+  appButtonText: {
+    fontSize: 18,
+    color: '#fff',
+    fontWeight: 'bold',
+    alignSelf: 'center',
+    textTransform: 'uppercase',
+  },
+  content: {
+    height: 350,
+    backgroundColor: '#ddd',
+    marginBottom: 10,
+    paddingTop:10,
+    padding: 16,
+    textAlignVertical: 'top',
+    borderRadius:10
   },
 });
 

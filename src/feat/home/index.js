@@ -6,6 +6,7 @@ import {deleteNote} from '../../graphql/mutations';
 import {listNotes} from '../../graphql/queries';
 import {S3Image} from 'aws-amplify-react-native';
 import {Button} from 'react-native-paper';
+import ImageS3 from '../../components/s3_image';
 
 const HomeScreen = ({navigation, route}) => {
   const [notes, setNotes] = useState([]);
@@ -37,13 +38,14 @@ const HomeScreen = ({navigation, route}) => {
   }
 
   const renderItem = ({item}) => {
-    console.log(item);
+    console.log("item ", item);
     return (
       <TouchableOpacity
         onPress={() => navigation.navigate('Update', {note: item})}
         underlayColor="white">
         <View style={styles.note}>
-          <S3Image imgKey={item.imageKey} style={styles.imageStyle} />
+          {/* <S3Image imgKey={item.imageKey} style={styles.imageStyle} /> */}
+          <ImageS3 imageKey={item.imageKey}/>
           <Text style={styles.noteTitle}>{item.title}</Text>
           <Text style={styles.noteContent}>{item.content}</Text>
           <Button
@@ -58,7 +60,7 @@ const HomeScreen = ({navigation, route}) => {
   };
   return (
     <FlatList
-      data={notes}
+      data={notes.sort((a,b)=>a.updatedAt<b.updatedAt)}
       renderItem={renderItem}
       keyExtractor={item => item.id}
       ListEmptyComponent={
@@ -83,7 +85,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     flex: 1,
     backgroundColor: 'white',
-    margin: 10,
+    margin: 20,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
   },
@@ -95,8 +97,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   noteContent: {
-    paddingTop: 10,
-    paddingLeft: 20,
+    padding:20,
     flexWrap: 'wrap',
   },
   separator: {
