@@ -3,6 +3,7 @@ import {StyleSheet, Image, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {Storage} from 'aws-amplify';
 
+const placeholder = require('../../assests/placeholder-image.png');
 const ImageS3 = props => {
   const [loading, setLoading] = useState(false);
   const [uri, setUri] = useState(props.uri);
@@ -27,7 +28,7 @@ async function formUrl(){
         <Image
           source={{uri: uri}}
           style={styles.imageStyle}
-          defaultSource={require('./placeholder-image.png')}
+          defaultSource={placeholder}
           onError={err => console.log(err)}
           onLoadStart={() => setLoading(true)}
           onLoadEnd={() => setLoading(false)}
@@ -35,7 +36,7 @@ async function formUrl(){
       ) : (
         <Image
           style={styles.imageStyle}
-          source={require('./placeholder-image.png')}
+          source={placeholder}
         />
       )}
         <ActivityIndicator
@@ -52,7 +53,7 @@ const styles = StyleSheet.create({
     width: 350,
     height: 150,
     resizeMode: 'stretch',
-    paddingLeft: 0,
+    padding:0,
   },
   activityIndicator: {
     position: 'absolute',

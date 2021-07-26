@@ -6,12 +6,14 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import {API, graphqlOperation, Storage} from 'aws-amplify';
 import {launchImageLibrary} from 'react-native-image-picker';
 import ImageS3 from '../../components/s3_image';
 import {ActivityIndicator, Colors} from 'react-native-paper';
 
+/* Update screen that allows the user to a note including title, content and image */
 const UpdateNoteScreen = ({navigation, route}) => {
   const initialState = {
     title: route.params?.note.title,
@@ -38,10 +40,8 @@ const UpdateNoteScreen = ({navigation, route}) => {
       note.imageKey = route.params?.note.imageKey;
       setLoading(true);
       await pathToImageFile();
-
       await API.graphql(graphqlOperation(updateNote, {input: note}));
       setLoading(false);
-
       navigation.navigate({
         name: 'Home',
         params: {note: note},
@@ -87,52 +87,53 @@ const UpdateNoteScreen = ({navigation, route}) => {
         alert(response.errorMessage);
         return;
       }
-      console.log('Response = ', response.assets[0].uri);
 
       setFilePath(response.assets[0]);
     });
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        onChangeText={val => setInput('title', val)}
-        style={styles.input}
-        value={formState.title}
-        placeholder="Title"
-      />
-      <TextInput
-        onChangeText={val => setInput('content', val)}
-        style={styles.content}
-        value={formState.content}
-        placeholder="Content"
-        multiline={true}
-      />
+    <ScrollView>
+      <View style={styles.container}>
+        <TextInput
+          onChangeText={val => setInput('title', val)}
+          style={styles.input}
+          value={formState.title}
+          placeholder="Title"
+        />
+        <TextInput
+          onChangeText={val => setInput('content', val)}
+          style={styles.content}
+          value={formState.content}
+          placeholder="Content"
+          multiline={true}
+        />
 
-      <ImageS3 uri={filePath.uri} />
+        <ImageS3 uri={filePath.uri} />
 
-      <View style={{height: 20}} />
-      <TouchableOpacity
-        activeOpacity={0.5}
-        style={styles.buttonStyle}
-        onPress={chooseFile}>
-        <Text style={styles.appButtonText}>Choose Image</Text>
-      </TouchableOpacity>
-      <View style={{height: 10}} />
-      <TouchableOpacity
-        activeOpacity={0.5}
-        style={styles.buttonStyle}
-        onPress={update}>
-        {loading ? (
-          <ActivityIndicator
-            style={styles.activityIndicator}
-            color={Colors.red800}
-          />
-        ) : (
-          <Text style={styles.appButtonText}>Update Note</Text>
-        )}
-      </TouchableOpacity>
-    </View>
+        <View style={{height: 20}} />
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.buttonStyle}
+          onPress={chooseFile}>
+          <Text style={styles.appButtonText}>Choose Image</Text>
+        </TouchableOpacity>
+        <View style={{height: 10}} />
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.buttonStyle}
+          onPress={update}>
+          {loading ? (
+            <ActivityIndicator
+              style={styles.activityIndicator}
+              color={Colors.red800}
+            />
+          ) : (
+            <Text style={styles.appButtonText}>Update Note</Text>
+          )}
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 

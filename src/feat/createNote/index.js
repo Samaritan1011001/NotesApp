@@ -2,22 +2,21 @@ import React, {useState} from 'react';
 import uuid from 'react-native-uuid';
 import {launchImageLibrary} from 'react-native-image-picker';
 import {createNote} from '../../graphql/mutations';
-
 import {
   View,
   Text,
   TextInput,
-  Button,
   TouchableOpacity,
   StyleSheet,
-  Image,
-  Alert
+  Alert,
+  ScrollView,
 } from 'react-native';
 import {API, graphqlOperation, Storage} from 'aws-amplify';
 import ImageS3 from '../../components/s3_image';
 
 const initialState = {title: '', content: '', imageKey: ''};
 
+/* Create screen that allows the user to create a note and attach a photo with the note */
 const CreateNoteScreen = ({navigation}) => {
   var imageKeyUUID = uuid.v1();
   const [filePath, setFilePath] = useState({});
@@ -41,7 +40,6 @@ const CreateNoteScreen = ({navigation}) => {
         alert(response.errorMessage);
         return;
       }
-      console.log('Response = ', response.assets[0].uri);
 
       setFilePath(response.assets[0]);
     });
@@ -50,7 +48,7 @@ const CreateNoteScreen = ({navigation}) => {
   async function addNote() {
     try {
       const note = {...formState};
-      if(note.title === '' || note.content === ''){
+      if (note.title === '' || note.content === '') {
         alertRequiredNameContent();
         return;
       }
@@ -70,14 +68,9 @@ const CreateNoteScreen = ({navigation}) => {
   }
 
   const alertRequiredNameContent = () =>
-  Alert.alert(
-    "Required",
-    "Title and Content are both required fields",
-    [
-      
-      { text: "OK", onPress: () => console.log("OK Pressed") }
-    ]
-  );
+    Alert.alert('Required', 'Title and Content are both required fields', [
+      {text: 'OK', onPress: () => console.log('OK Pressed')},
+    ]);
 
   async function pathToImageFile() {
     try {
@@ -95,40 +88,38 @@ const CreateNoteScreen = ({navigation}) => {
     setFormState({...formState, [key]: value});
   }
   return (
-    <View style={styles.container}>
-      <TextInput
-        onChangeText={val => setInput('title', val)}
-        style={styles.input}
-        value={formState.title}
-        placeholder="Title"
-      />
-      <TextInput
-        onChangeText={val => setInput('content', val)}
-        style={styles.content}
-        value={formState.content}
-        placeholder="Content"
-        multiline={true}
-      />
-
-      <ImageS3 uri={filePath.uri}/>
-
-
-      <View style={{height: 20}} />
-      <TouchableOpacity
-        activeOpacity={0.5}
-        style={styles.buttonStyle}
-        onPress={chooseFile}>
-        <Text style={styles.appButtonText}>Choose Image</Text>
-      </TouchableOpacity>
-
-      <View style={{height: 10}} />
-      <TouchableOpacity
-        activeOpacity={0.5}
-        style={styles.buttonStyle}
-        onPress={addNote}>
-        <Text style={styles.appButtonText}>Create Note</Text>
-      </TouchableOpacity>
-    </View>
+    <ScrollView>
+      <View style={styles.container}>
+        <TextInput
+          onChangeText={val => setInput('title', val)}
+          style={styles.input}
+          value={formState.title}
+          placeholder="Title"
+        />
+        <TextInput
+          onChangeText={val => setInput('content', val)}
+          style={styles.content}
+          value={formState.content}
+          placeholder="Content"
+          multiline={true}
+        />
+        <ImageS3 uri={filePath.uri} />
+        <View style={{height: 20}} />
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.buttonStyle}
+          onPress={chooseFile}>
+          <Text style={styles.appButtonText}>Choose Image</Text>
+        </TouchableOpacity>
+        <View style={{height: 10}} />
+        <TouchableOpacity
+          activeOpacity={0.5}
+          style={styles.buttonStyle}
+          onPress={addNote}>
+          <Text style={styles.appButtonText}>Create Note</Text>
+        </TouchableOpacity>
+      </View>
+    </ScrollView>
   );
 };
 
@@ -138,9 +129,13 @@ const styles = StyleSheet.create({
     padding: 20,
     alignContent: 'flex-start',
   },
-  todo: {marginBottom: 15},
-  input: {height: 50, backgroundColor: '#ddd', marginBottom: 10, padding: 16,borderRadius:10},
-  todoName: {fontSize: 18},
+  input: {
+    height: 50,
+    backgroundColor: '#ddd',
+    marginBottom: 10,
+    padding: 16,
+    borderRadius: 10,
+  },
   imageStyle: {
     width: 350,
     height: 150,
@@ -166,10 +161,10 @@ const styles = StyleSheet.create({
     height: 350,
     backgroundColor: '#ddd',
     marginBottom: 10,
-    paddingTop:10,
+    paddingTop: 10,
     padding: 16,
     textAlignVertical: 'top',
-    borderRadius:10
+    borderRadius: 10,
   },
 });
 

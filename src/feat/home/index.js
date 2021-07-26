@@ -1,13 +1,12 @@
 import React, {useEffect, useState} from 'react';
-
 import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
-import {API, graphqlOperation, Auth, Storage} from 'aws-amplify';
+import {API, graphqlOperation, Storage} from 'aws-amplify';
 import {deleteNote} from '../../graphql/mutations';
 import {listNotes} from '../../graphql/queries';
-import {S3Image} from 'aws-amplify-react-native';
 import {Button} from 'react-native-paper';
 import ImageS3 from '../../components/s3_image';
 
+/* Home screen that displays all the Notes belonging to a user */
 const HomeScreen = ({navigation, route}) => {
   const [notes, setNotes] = useState([]);
 
@@ -26,7 +25,6 @@ const HomeScreen = ({navigation, route}) => {
   }
 
   async function delNote(note) {
-    console.log('here');
     try {
       await Storage.remove(note.imageKey);
       await API.graphql(graphqlOperation(deleteNote, {input: {id: note.id}}));
@@ -38,14 +36,12 @@ const HomeScreen = ({navigation, route}) => {
   }
 
   const renderItem = ({item}) => {
-    console.log("item ", item);
     return (
       <TouchableOpacity
         onPress={() => navigation.navigate('Update', {note: item})}
         underlayColor="white">
         <View style={styles.note}>
-          {/* <S3Image imgKey={item.imageKey} style={styles.imageStyle} /> */}
-          <ImageS3 imageKey={item.imageKey}/>
+          <ImageS3 imageKey={item.imageKey} />
           <Text style={styles.noteTitle}>{item.title}</Text>
           <Text style={styles.noteContent}>{item.content}</Text>
           <Button
@@ -60,7 +56,7 @@ const HomeScreen = ({navigation, route}) => {
   };
   return (
     <FlatList
-      data={notes.sort((a,b)=>a.updatedAt<b.updatedAt)}
+      data={notes.sort((a, b) => a.updatedAt < b.updatedAt)}
       renderItem={renderItem}
       keyExtractor={item => item.id}
       ListEmptyComponent={
@@ -74,13 +70,6 @@ const HomeScreen = ({navigation, route}) => {
 };
 
 const styles = StyleSheet.create({
-  todo: {marginBottom: 15},
-  input: {height: 50, backgroundColor: '#ddd', marginBottom: 10, padding: 8},
-  todoName: {fontSize: 18},
-  imageStyle: {
-    height: 150,
-    resizeMode: 'stretch',
-  },
   note: {
     borderRadius: 5,
     flex: 1,
@@ -88,16 +77,16 @@ const styles = StyleSheet.create({
     margin: 20,
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
+    padding: 10,
   },
   noteTitle: {
     paddingTop: 20,
     paddingLeft: 20,
-
     fontSize: 24,
     fontWeight: 'bold',
   },
   noteContent: {
-    padding:20,
+    padding: 20,
     flexWrap: 'wrap',
   },
   separator: {
