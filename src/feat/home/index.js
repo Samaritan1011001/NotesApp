@@ -36,7 +36,6 @@ const HomeScreen = ({navigation, route}) => {
   }
 
   const renderItem = ({item}) => {
-    console.log("item.imageKey ->",item.imageKey);
     return (
       <TouchableOpacity
         onPress={() => navigation.navigate('Update', {note: item})}

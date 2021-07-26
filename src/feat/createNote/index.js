@@ -54,9 +54,9 @@ const CreateNoteScreen = ({navigation}) => {
       const note = {...formState};
       if (note.title === '' || note.content === '') {
         alertRequiredNameContent();
+        setLoading(false);
         return;
       }
-      console.log("filePath.uri ->",filePath.uri);
       if(filePath.uri){
       note.imageKey = imageKeyUUID;
       await pathToImageFile();

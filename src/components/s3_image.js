@@ -16,11 +16,12 @@ async function formUrl(){
     if(props.imageKey){
         const uri = await Storage.get(props.imageKey);
         setUri(uri);
+        setLoading(false);
+
     }else{
         setUri(props.uri);
 
     }
-    setLoading(false);
 
 
 }
@@ -52,7 +53,7 @@ async function formUrl(){
 
 const styles = StyleSheet.create({
   imageStyle: {
-    width: 350,
+    width: 325,
     height: 150,
     resizeMode: 'stretch',
     padding:0,
