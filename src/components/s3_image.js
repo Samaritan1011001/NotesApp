@@ -16,10 +16,12 @@ async function formUrl(){
     if(props.imageKey){
         const uri = await Storage.get(props.imageKey);
         setUri(uri);
-        setLoading(false);
     }else{
         setUri(props.uri);
+
     }
+    setLoading(false);
+
 
 }
   return (

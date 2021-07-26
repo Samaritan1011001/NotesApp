@@ -12,9 +12,12 @@ import {API, graphqlOperation, Storage} from 'aws-amplify';
 import {launchImageLibrary} from 'react-native-image-picker';
 import ImageS3 from '../../components/s3_image';
 import {ActivityIndicator, Colors} from 'react-native-paper';
+import uuid from 'react-native-uuid';
 
 /* Update screen that allows the user to a note including title, content and image */
 const UpdateNoteScreen = ({navigation, route}) => {
+  var imageKeyUUID = uuid.v1();
+
   const initialState = {
     title: route.params?.note.title,
     content: route.params?.note.content,
@@ -29,17 +32,24 @@ const UpdateNoteScreen = ({navigation, route}) => {
   }, []);
 
   async function fetchImage() {
+    if(initialState.imageKey){
     const url = await Storage.get(initialState.imageKey);
     setFilePath({uri: url});
+    }
   }
 
   async function update() {
     try {
       const note = {...formState};
       note.id = route.params?.note.id;
-      note.imageKey = route.params?.note.imageKey;
+      const imageKey = route.params?.note.imageKey;
+      if(imageKey !== ''){
+        note.imageKey = imageKey;
+      }else{
+        note.imageKey = imageKeyUUID
+      }
       setLoading(true);
-      await pathToImageFile();
+      await pathToImageFile(imageKey);
       await API.graphql(graphqlOperation(updateNote, {input: note}));
       setLoading(false);
       navigation.navigate({
@@ -53,11 +63,11 @@ const UpdateNoteScreen = ({navigation, route}) => {
     }
   }
 
-  async function pathToImageFile() {
+  async function pathToImageFile(imageKey) {
     try {
       const response = await fetch(filePath.uri);
       const blob = await response.blob();
-      await Storage.put(formState.imageKey, blob, {
+      await Storage.put(imageKey, blob, {
         contentType: 'image/jpeg',
       });
     } catch (err) {

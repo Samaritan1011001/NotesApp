@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import {API, graphqlOperation, Storage} from 'aws-amplify';
 import ImageS3 from '../../components/s3_image';
+import {ActivityIndicator, Colors} from 'react-native-paper';
 
 const initialState = {title: '', content: '', imageKey: ''};
 
@@ -21,6 +22,7 @@ const CreateNoteScreen = ({navigation}) => {
   var imageKeyUUID = uuid.v1();
   const [filePath, setFilePath] = useState({});
   const [formState, setFormState] = useState(initialState);
+  const [loading, setLoading] = useState(false);
 
   const chooseFile = () => {
     let options = {
@@ -47,14 +49,20 @@ const CreateNoteScreen = ({navigation}) => {
 
   async function addNote() {
     try {
+      setLoading(true);
+
       const note = {...formState};
       if (note.title === '' || note.content === '') {
         alertRequiredNameContent();
         return;
       }
+      console.log("filePath.uri ->",filePath.uri);
+      if(filePath.uri){
       note.imageKey = imageKeyUUID;
       await pathToImageFile();
+      }
       await API.graphql(graphqlOperation(createNote, {input: note}));
+      setLoading(false);
 
       navigation.navigate({
         name: 'Home',
@@ -116,8 +124,16 @@ const CreateNoteScreen = ({navigation}) => {
           activeOpacity={0.5}
           style={styles.buttonStyle}
           onPress={addNote}>
-          <Text style={styles.appButtonText}>Create Note</Text>
+          {loading ? (
+            <ActivityIndicator
+              style={styles.activityIndicator}
+              color={Colors.red800}
+            />
+          ) : (
+            <Text style={styles.appButtonText}>Create Note</Text>
+          )}
         </TouchableOpacity>
+        
       </View>
     </ScrollView>
   );

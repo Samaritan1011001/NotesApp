@@ -10,6 +10,7 @@ export const getNote = /* GraphQL */ `
       imageKey
       createdAt
       updatedAt
+      owner
     }
   }
 `;
@@ -27,6 +28,7 @@ export const listNotes = /* GraphQL */ `
         imageKey
         createdAt
         updatedAt
+        owner
       }
       nextToken
     }
