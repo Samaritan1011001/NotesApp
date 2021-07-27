@@ -11,7 +11,7 @@ const CustomNavigationBar = ({navigation, previous}) => {
     }
   }
   return (
-    <Appbar.Header>
+    <Appbar.Header style={{backgroundColor: '#009688'}}>
       {previous ? <Appbar.BackAction onPress={navigation.goBack} /> : null}
       <Appbar.Content />
       {!previous ? (
