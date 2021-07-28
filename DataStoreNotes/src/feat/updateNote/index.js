@@ -33,6 +33,7 @@ const UpdateNoteScreen = ({navigation, route}) => {
     fetchImage();
   }, []);
 
+  
   async function fetchImage() {
     if(initialState.imageKey){
     const url = await Storage.get(initialState.imageKey);
@@ -52,13 +53,15 @@ const UpdateNoteScreen = ({navigation, route}) => {
         updatedNote.imageKey = imageKeyUUID
       }
       setLoading(true);
-      await pathToImageFile(imageKey);
-      // await API.graphql(graphqlOperation(updateNote, {input: note}));
-      const original =route.params?.note;
-      const finalNote = Note.copyOf(original, (updated)=> {
+      //TODO: fix updating image
+      // await pathToImageFile(imageKey);
+      // const original =new Note(route.params?.note);
+      // const n = await DataStore.query(Note,initialState.id);
+      // const original = new Note(n);
+      const finalNote = Note.copyOf(route.params?.note, (updated)=> {
         updated.title = updatedNote.title;
         updated.content = updatedNote.content;
-        updated.imageKey = imageKey;
+        // updated.imageKey = imageKey;
       });
       await DataStore.save(
         finalNote

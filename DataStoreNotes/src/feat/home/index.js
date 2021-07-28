@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, StyleSheet, FlatList, TouchableOpacity} from 'react-native';
-import {DataStore, graphqlOperation, Storage, Auth} from 'aws-amplify';
+import {DataStore, graphqlOperation, Storage, Auth, sumerianScene} from 'aws-amplify';
 // import {deleteNote} from '../../graphql/mutations';
 // import {listNotes} from '../../graphql/queries';
 import {Button} from 'react-native-paper';
 import ImageS3 from '../../components/s3_image';
 // import * as subscriptions from '../../graphql/subscriptions';
-import { Note } from '../../models';
+import {Note} from '../../models';
 
 /* Home screen that displays all the Notes belonging to a user */
 const HomeScreen = ({navigation, route}) => {
@@ -16,36 +16,32 @@ const HomeScreen = ({navigation, route}) => {
     fetchNotes();
   }, [route.params?.note]);
 
-  // useEffect(()=>{
-  //   function nextNote({provider, value}){
-  //     const newNote = value.data.onCreateNote;
-  //     console.log("notes ", notes.length);
-  //     notes.push(newNote);
-  //     notes.sort((a, b) => a.updatedAt < b.updatedAt)
-  //     setNotes(notes);
-  //   };
-  //   getUser().then(user=>{
-  //     try {
-  //       const sub =  API.graphql(
-  //         graphqlOperation(subscriptions.onCreateNote, {owner: user.username}),
-  //       ).subscribe({
-  //         next: ({provider, value})=>nextNote({provider, value}),
-  //         error: error => console.log('error ', error.error),
-  //       });
-  //       return sub.unsubscribe();
-  //     } catch (error) {
-  //       console.log("Subscription unsuccessfull ,", error);
-  //     }
-      
-  //   });
-  // },[notes]);
+  useEffect(() => {
+    function nextNote(newNote) {
+      console.log('newNote ', newNote);
 
+      // const newNote = value.data.onCreateNote;
+      console.log('notes ', notes.length);
+      notes.push(newNote);
+      notes.sort((a, b) => a.updatedAt < b.updatedAt);
+      setNotes(notes);
+    }
+    try {
+      const sub =  DataStore.observe(Note).subscribe(msg => {
+        if(msg.opType === 'INSERT'){
+          nextNote(msg.element);
+        }
+      });
+      return ()=>{sub.unsubscribe()};
+    } catch (error) {
+      console.log('Subscription unsuccessfull ,', error);
+    }
+  });
 
   const getUser = async () => {
     try {
       const user = await Auth.currentUserInfo();
       return user;
-
     } catch (err) {
       console.log('error fetching user, ', err);
     }
@@ -54,7 +50,7 @@ const HomeScreen = ({navigation, route}) => {
     try {
       const noteData = await DataStore.query(Note);
 
-      console.log("noteData ",noteData)
+      // console.log("noteData ",noteData)
       // const items = noteData.data.listNotes.items;
       setNotes(noteData);
     } catch (err) {
@@ -69,7 +65,7 @@ const HomeScreen = ({navigation, route}) => {
       await DataStore.delete(note);
 
       const newNotes = notes.filter(item => item.id !== note.id);
-      console.log("deleted notes ", newNotes);
+      console.log('deleted notes ', newNotes);
       setNotes(newNotes);
     } catch (err) {
       console.log('error deleting notes, ', err);
