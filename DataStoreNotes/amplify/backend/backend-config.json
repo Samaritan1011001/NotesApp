@@ -1,0 +1,33 @@
+{
+  "api": {
+    "amplifyDatasource": {
+      "service": "AppSync",
+      "providerPlugin": "awscloudformation",
+      "output": {
+        "authConfig": {
+          "additionalAuthenticationProviders": [],
+          "defaultAuthentication": {
+            "authenticationType": "AMAZON_COGNITO_USER_POOLS",
+            "userPoolConfig": {
+              "userPoolId": "authdatastorenotes4ffe3747"
+            }
+          }
+        }
+      }
+    }
+  },
+  "auth": {
+    "datastorenotes4ffe3747": {
+      "service": "Cognito",
+      "providerPlugin": "awscloudformation",
+      "dependsOn": [],
+      "customAuth": false
+    }
+  },
+  "storage": {
+    "ds3notes": {
+      "service": "S3",
+      "providerPlugin": "awscloudformation"
+    }
+  }
+}
